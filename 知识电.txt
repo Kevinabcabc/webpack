@@ -1,0 +1,113 @@
+
+yarn init -y
+yarn add webpack webpack-cli -D
+写webpack.config.js文件
+
+配置：
+let path = require('path')
+module.exports = {
+    //  多入口，
+    mode:'development',
+    entry: {
+        home: './src/index.js',
+        other: './src/other.js',
+    },
+    output: {
+        filename: '[name].js',//代表home/other
+        path: path.resolve(__dirname,'dist')
+    }
+}
+yarn add html-webpack-plugin -D //用模版生成html 并自动把js引入进去
+
+配置：
+let path = require('path')
+let HtmlWebpackPlugin = require('html-webpack-plugin')
+module.exports = {
+    //  多入口，
+    mode:'development',
+    entry: {
+        home: './src/index.js',
+        other: './src/other.js',
+    },
+    output: {
+        filename: '[name].js',//代表home/other
+        path: path.resolve(__dirname,'dist')
+    },
+    plugins: [
+        new HtmlWebpackPlugin({
+            template: './index.html',
+            filename: 'home.html',
+            chunks:['home']
+        }),
+        new HtmlWebpackPlugin({
+            template: './index.html',
+            filename: 'other.html',
+            chunks:['other','home']
+        }),
+    ]
+}
+
+配置sourcemap 
+yarn add @babel/core @babel/preset-env babel-loader webpack-dev-server -D
+            核心         预设              桥梁 处理         运行打包                
+
+1)cleanWebpackPlugin //打包前清除
+2)copyWebpackPlugin //添加文件夹
+3)bannerPlugin 内置//添加声明
+
+
+
+yarn add webpack-dev-middleware
+
+在服务端启动webpack
+
+
+//============================= ajax 四部曲
+let xhr = new XMLHttpRequest();
+
+// xhr.open('GET','http://localhost:3001/api/user',true)//方法  api  是否异步
+//写死会跨域   要先发到 dev-server  的服务 再转发给3001
+//需要佩代理 http-proxy
+xhr.open('GET','/user/api',true)//方法  api  是否异步
+xhr.onload = function() {
+    console.log(xhr.response);
+}
+
+xhr.send();
+
+
+
+yarn add webpack-merge -D 
+
+将配置文件合并
+
+分离生产和开发环境
+
+let {smart} = require('webpack-merge')
+let base = require ('./webpack.base.js')
+
+module.exports = smart(base,{
+    mode:'development',//development  
+    devServer: {//开发环境服务器
+
+    },
+    devtool: 'source-map' //开发环境加源码映射
+})
+
+
+let {smart} = require('webpack-merge')  
+let base = require ('./webpack.base.js')
+
+module.exports = smart(base,{
+    mode:'production',//development  
+    optimization: {//开发环境压缩
+        minimizer: {
+
+        }
+    },
+    plugins:[
+
+    ]
+})
+
+npm run b -- --config webpack.dev.js  指定文件
